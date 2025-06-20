@@ -76,6 +76,16 @@ $result_programas = $conn->query($sql_programas);
 
 ?>
 
+<div class="row">
+    <div class="col-2 offset-10">
+        <div class="text-center">
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalClasePersonalizada">
+                Programar Clase Personalizada
+            </button>
+        </div>
+    </div>
+</div>
 <div class="container mt-5">
     <form id="formProgramador">
         <div class="card">
@@ -211,21 +221,89 @@ $result_programas = $conn->query($sql_programas);
 </div>
 
 <div class="container mt-4">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Clases Programadas</h5>
-            <div>
-                <span id="badge-agendada" class="badge text-bg-success me-1">Agendadas: 0</span>
-                <span id="badge-vista" class="badge text-bg-primary">Vistas: 0</span>
-                <span id="badge-perdida" class="badge text-bg-danger me-1">Perdidas: 0</span>
-                <span id="badge-reagendada" class="badge text-bg-warning me-1">Reagendadas: 0</span>
-            </div>
-        </div>
-        <div class="container mt-4">
-            <div id='calendar'></div>
-        </div>
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Clases Programadas</h5>
+      <div class="d-flex align-items-center gap-2">
+        <span id="badge-agendada" class="badge text-bg-success">Agendadas: 0</span>
+        <span id="badge-vista" class="badge text-bg-primary">Vistas: 0</span>
+        <span id="badge-perdida" class="badge text-bg-danger">Perdidas: 0</span>
+        <span id="badge-reagendada" class="badge text-bg-warning">Reagendadas: 0</span>
+      </div>
     </div>
+
+    <div class="container mt-4">
+      <div id='calendar'></div>
+    </div>
+  </div>
 </div>
+
+<!-- Modal de Clase Personalizada -->
+<div class="modal fade" id="modalClasePersonalizada" tabindex="-1" aria-labelledby="modalClasePersonalizadaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalClasePersonalizadaLabel">Programar Clase Personalizada</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formClasePersonalizada">
+          <div class="row mb-3">
+
+            <div class="col-md-6">
+              <label for="docente" class="form-label">Docente</label>
+              <select class="form-select" id="docente" name="docente" required>
+                <option selected disabled>Seleccionar docente</option>
+                <!-- Opciones dinámicas -->
+              </select>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="fecha" class="form-label">Fecha</label>
+              <input type="date" class="form-control" id="fecha" name="fecha" required>
+            </div>
+            <div class="col-md-3">
+              <label for="hora_inicio" class="form-label">Hora de Inicio</label>
+              <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" required>
+            </div>
+            <div class="col-md-3">
+              <label for="hora_fin" class="form-label">Hora de Fin</label>
+              <input type="time" class="form-control" id="hora_fin" name="hora_fin" required>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="salon" class="form-label">Salón</label>
+              <select class="form-select" id="salon" name="salon">
+                <option selected disabled>Seleccionar salón</option>
+                <!-- Opciones dinámicas -->
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="modalidad" class="form-label">Modalidad</label>
+              <select class="form-select" id="modalidad" name="modalidad" required>
+                <option selected disabled>Seleccionar modalidad</option>
+                <option value="presencial">Presencial</option>
+                <option value="virtual">Virtual</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary" form="formClasePersonalizada">Guardar Clase</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- Modal Reprogramación-->
 <div class="modal fade" id="modalReprogramar" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog">
