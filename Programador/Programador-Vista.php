@@ -246,10 +246,10 @@ $result_programas = $conn->query($sql_programas);
         <h5 class="modal-title" id="modalClasePersonalizadaLabel">Programar Clase Personalizada</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
+
       <div class="modal-body">
         <form id="formClasePersonalizada">
           <div class="row mb-3">
-
             <div class="col-md-6">
               <label for="docente" class="form-label">Docente</label>
               <select class="form-select" id="docente" name="docente" required>
@@ -257,32 +257,46 @@ $result_programas = $conn->query($sql_programas);
                 <!-- Opciones dinámicas -->
               </select>
             </div>
-          </div>
-
-          <div class="row mb-3">
             <div class="col-md-6">
-              <label for="fecha" class="form-label">Fecha</label>
-              <input type="date" class="form-control" id="fecha" name="fecha" required>
-            </div>
-            <div class="col-md-3">
-              <label for="hora_inicio" class="form-label">Hora de Inicio</label>
-              <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" required>
-            </div>
-            <div class="col-md-3">
-              <label for="hora_fin" class="form-label">Hora de Fin</label>
-              <input type="time" class="form-control" id="hora_fin" name="hora_fin" required>
+              <label for="periodo" class="form-label">Periodo</label>
+              <select class="form-select" id="periodo" name="periodo" required>
+                <option selected disabled>Seleccionar periodo</option>
+                <!-- Opciones dinámicas -->
+              </select>
             </div>
           </div>
 
           <div class="row mb-3">
             <div class="col-md-6">
-              <label for="salon" class="form-label">Salón</label>
-              <select class="form-select" id="salon" name="salon">
-                <option selected disabled>Seleccionar salón</option>
+              <label for="modulo" class="form-label">Módulo</label>
+              <select class="form-select" id="modulo" name="modulo" required>
+                <option selected disabled>Seleccionar módulo</option>
                 <!-- Opciones dinámicas -->
               </select>
             </div>
             <div class="col-md-6">
+              <label for="fecha" class="form-label">Fecha</label>
+              <input type="date" class="form-control" id="fecha" name="fecha" required>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label for="horaEntrada" class="form-label">Hora de Inicio</label>
+              <input type="time" class="form-control" id="horaEntrada" name="horaEntrada" required>
+            </div>
+            <div class="col-md-3">
+              <label for="horaSalida" class="form-label">Hora de Fin</label>
+              <input type="time" class="form-control" id="horaSalida" name="horaSalida" required>
+            </div>
+            <div class="col-md-3">
+              <label for="salon" class="form-label">Salón</label>
+              <select class="form-select" id="salon" name="salon" required>
+                <option selected disabled>Seleccionar salón</option>
+                <!-- Opciones dinámicas -->
+              </select>
+            </div>
+            <div class="col-md-3">
               <label for="modalidad" class="form-label">Modalidad</label>
               <select class="form-select" id="modalidad" name="modalidad" required>
                 <option selected disabled>Seleccionar modalidad</option>
@@ -294,15 +308,14 @@ $result_programas = $conn->query($sql_programas);
         </form>
       </div>
 
-      <!-- Footer -->
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="submit" class="btn btn-primary" form="formClasePersonalizada">Guardar Clase</button>
       </div>
-
     </div>
   </div>
 </div>
+
 
 <!-- Modal Reprogramación-->
 <div class="modal fade" id="modalReprogramar" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">

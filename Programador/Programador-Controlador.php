@@ -4,6 +4,75 @@ include '../Conexion.php';
 $accion = $_GET['accion'] ?? 'default';
 
 switch ($accion) {
+    case 'crear_unica':
+        if (
+            empty($_POST['fecha']) ||
+            empty($_POST['horaEntrada']) ||
+            empty($_POST['horaSalida']) ||
+            empty($_POST['salon']) ||
+            empty($_POST['docente']) ||
+            empty($_POST['periodo']) ||
+            empty($_POST['modulo']) ||
+            empty($_POST['modalidad'])
+        ) {
+            die(json_encode([
+                "status" => "error",
+                "message" => "Faltan datos obligatorios en el formulario."
+            ]));                
+        } else {
+            $fecha = $_POST['fecha'];
+            $hora_inicio = $_POST['horaEntrada'];
+            $hora_salida = $_POST['horaSalida'];
+            $salon = $_POST['salon'];
+            $docente = $_POST['docente'];
+            $periodo = $_POST['periodo'];
+            $modulo = $_POST['modulo'];
+            $modalidad = $_POST['modalidad'];
+            $estado = 'Pendiente';
+        }
+
+        // Validaciones
+        if (!validarHorasEntradaSalida($hora_inicio, $hora_salida)) {
+            die(json_encode(['status' => 'error', 'message' => 'La hora de salida debe ser después de la hora de entrada.']));
+        }
+
+        if (!horarioLaboralValido($hora_inicio, $hora_salida)) {
+            die(json_encode(['status' => 'error', 'message' => 'El horario debe estar entre 7:00 AM y 10:00 PM.']));
+        }
+
+        if (!docentePuedeDictarModulo($conn, $docente, $modulo)) {
+            die(json_encode(['status' => 'error', 'message' => 'El docente no está habilitado para dictar este módulo.']));
+        }
+
+        // Validación de disponibilidad para esa fecha específica
+        if (!docenteDisponible($docente, $fecha, $hora_inicio, $hora_salida, $conn)) {
+            die(json_encode(['status' => 'error', 'message' => "El docente no está disponible el {$fecha} de {$hora_inicio} a {$hora_salida}."]));
+        }
+
+        if (!salonDisponible($salon, $fecha, $hora_inicio, $hora_salida, $conn)) {
+            die(json_encode(['status' => 'error', 'message' => "El salón no está disponible el {$fecha} de {$hora_inicio} a {$hora_salida}."]));
+        }
+
+        // Insertar UNA sola clase
+        $sql = "INSERT INTO programador (fecha, hora_inicio, hora_salida, id_salon, numero_documento, id_modulo, id_periodo, estado, modalidad) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+
+        if (!$stmt) {
+            die(json_encode(['status' => 'error', 'message' => 'Error en la preparación de la consulta: ' . $conn->error]));
+        }
+
+        $stmt->bind_param('sssiiiiss', $fecha, $hora_inicio, $hora_salida, $salon, $docente, $modulo, $periodo, $estado, $modalidad);
+
+        if (!$stmt->execute()) {
+            die(json_encode(['status' => 'error', 'message' => 'Error al insertar: ' . $stmt->error]));
+        }
+
+        echo json_encode(['status' => 'success', 'message' => 'Clase programada correctamente para ' . $fecha . '.']);
+
+        $stmt->close();
+        break;
+
     case 'crear':
         if (
             empty($_POST['dia']) ||
