@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS cuentas_cobro (
   CONSTRAINT fk_cuentas_cobro_docente FOREIGN KEY (numero_documento) REFERENCES docentes (numero_documento)
 );
 
+-- Tabla abonos
 CREATE TABLE IF NOT EXISTS abonos (
   id_abono INT NOT NULL AUTO_INCREMENT,
   id_cuenta INT NOT NULL,
