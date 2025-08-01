@@ -1,21 +1,24 @@
 <?php
 session_start();
 
-// Verificar si el usuario está autenticado
 if (isset($_SESSION['id'])) {
-    // Si el usuario está autenticado, verificar el rol
-    if ($_SESSION['rol'] == "docente") {
-        // Si es docente, redirigir al área de cuentas de docentes
-        header("Location: Cuentas-Docentes/Cuentas-Docentes-Vista.php");
-        exit();
-    } else {
-        // Si no es docente (probablemente admin o algún otro rol), redirigir al dashboard
-        header("Location: Dashboard/Dashboard.php");
-        exit();
+    $rol = $_SESSION['rol'];
+
+    switch ($rol) {
+        case 'docente':
+            header("Location: Cuentas-Docentes/Cuentas-Docentes-Vista.php");
+            break;
+        case 'financiero':
+            header("Location: Cuentas-De-Cobro/Cuentas-De-Cobro-Vista.php");
+            break;
+        case 'admin':
+        default:
+            header("Location: Dashboard/Dashboard.php");
+            break;
     }
+    exit();
 } else {
-    // Si no está autenticado, redirigir al formulario de login
+    // No autenticado
     header("Location: Login/Login-Vista.php");
     exit();
 }
-?>

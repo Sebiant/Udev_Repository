@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   id INT NOT NULL AUTO_INCREMENT,
   correo VARCHAR(70) DEFAULT NULL,
   clave VARCHAR(255) DEFAULT NULL,	
-  rol VARCHAR(25) DEFAULT NULL,
+  rol ENUM('admin', 'docente', 'financiero') DEFAULT NULL;
   numero_documento VARCHAR(20) DEFAULT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (numero_documento) REFERENCES docentes(numero_documento) ON DELETE SET NULL ON UPDATE CASCADE
@@ -70,7 +70,6 @@ CREATE TABLE IF NOT EXISTS cuentas_cobro (
   CONSTRAINT fk_cuentas_cobro_docente FOREIGN KEY (numero_documento) REFERENCES docentes (numero_documento)
 );
 
--- Tabla abonos
 CREATE TABLE IF NOT EXISTS abonos (
   id_abono INT NOT NULL AUTO_INCREMENT,
   id_cuenta INT NOT NULL,
@@ -115,7 +114,7 @@ CREATE TABLE IF NOT EXISTS docente_modulo (
     REFERENCES docentes (numero_documento) ON DELETE CASCADE,
   CONSTRAINT fk_docente_modulo_modulo FOREIGN KEY (id_modulo) 
     REFERENCES modulos (id_modulo) ON DELETE CASCADE,
-  UNIQUE KEY (numero_documento, id_modulo) -- Evita duplicados
+  UNIQUE KEY (numero_documento, id_modulo)
 );
 
 -- Tabla programador
@@ -129,7 +128,7 @@ CREATE TABLE IF NOT EXISTS programador (
   id_modulo INT NOT NULL,
   id_periodo INT NOT NULL,
   modalidad VARCHAR(20) NOT NULL,
-  estado ENUM('Perdida', 'Vista', 'Pendiente', 'Reprogramada') NOT NULL DEFAULT 'Pendiente',
+  estado ENUM('Pendiente', 'Perdida', 'Vista','Reprogramada') NOT NULL DEFAULT 'Pendiente',
   clase_original_id INT DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -148,7 +147,7 @@ CREATE TABLE IF NOT EXISTS asistencias (
   hora_entrada TIME DEFAULT NULL,
   hora_salida TIME DEFAULT NULL,
   id_programador INT NOT NULL,
-  estado ENUM('cumplida', 'perdida') NOT NULL DEFAULT 'cumplida',
+  estado ENUM('Vista', 'Perdida') NOT NULL DEFAULT 'Vista',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id_asistencia),
   CONSTRAINT fk_asistencias_programador FOREIGN KEY (id_programador) REFERENCES programador(id_programador)

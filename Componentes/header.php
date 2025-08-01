@@ -7,14 +7,30 @@ if (!isset($_SESSION['id'])) {
 }
 
 $rol = $_SESSION['rol'] ?? null;
-$nombre = $_SESSION['nombre'];
+$nombre = $_SESSION['nombre'] ?? '';
+$currentPage = basename($_SERVER['PHP_SELF']);
 
-if ($rol === 'admin' && basename($_SERVER['PHP_SELF']) === 'Cuentas-Docentes-Vista.php') {
+// ADMIN: no puede entrar a Cuentas-Docentes
+if ($rol === 'admin' && $currentPage === 'Cuentas-Docentes-Vista.php') {
   header("Location: ../Index.php");
   exit();
 }
 
-if ($rol === 'docente' && basename($_SERVER['PHP_SELF']) !== 'Cuentas-Docentes-Vista.php') {
+// DOCENTE: solo puede entrar a Cuentas-Docentes
+if ($rol === 'docente' && $currentPage !== 'Cuentas-Docentes-Vista.php') {
+  header("Location: ../Index.php");
+  exit();
+}
+
+// FINANCIERO: solo puede acceder a 3 vistas específicas
+if (
+  $rol === 'financiero' &&
+  !in_array($currentPage, [
+    'Cuentas-De-Cobro-Vista.php',
+    'Asistencias-Vista.php',
+    'Programador-Vista.php'
+  ])
+) {
   header("Location: ../Index.php");
   exit();
 }
@@ -41,10 +57,11 @@ if ($rol === 'docente' && basename($_SERVER['PHP_SELF']) !== 'Cuentas-Docentes-V
     </button>
     <div class="collapse navbar-collapse justify-content-between" id="navbarTogglerDemo01">
       <a class="navbar-brand" href="../index.php">Udev</a>
-
       <!-- CENTRADO del menú -->
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+        
         <?php if ($rol === 'admin'): ?>
+          <!-- Admin full access -->
           <li class="nav-item"><a class="nav-link" href="../Cuentas-De-Cobro/Cuentas-De-Cobro-Vista.php">Cuentas de Cobro</a></li>
           <li class="nav-item"><a class="nav-link" href="../Programador/Programador-Vista.php">Programador</a></li>
           <li class="nav-item"><a class="nav-link" href="../Asistencias/Asistencias-Vista.php">Asistencias</a></li>
@@ -54,13 +71,23 @@ if ($rol === 'docente' && basename($_SERVER['PHP_SELF']) !== 'Cuentas-Docentes-V
           <li class="nav-item"><a class="nav-link" href="../Periodos/Periodos-Vista.php">Periodos</a></li>
           <li class="nav-item"><a class="nav-link" href="../Programas/Programas-Vista.php">Programas</a></li>
           <li class="nav-item"><a class="nav-link" href="../Modulos/Modulos-Vista.php">Modulos</a></li>
+
+        <?php elseif ($rol === 'financiero'): ?>
+          <!-- Financiero solo puede ver cuentas, asistencias y programador -->
+          <li class="nav-item"><a class="nav-link" href="../Cuentas-De-Cobro/Cuentas-De-Cobro-Vista.php">Cuentas de Cobro</a></li>
+          <li class="nav-item"><a class="nav-link" href="../Programador/Programador-Vista.php">Programador</a></li>
+          <li class="nav-item"><a class="nav-link" href="../Asistencias/Asistencias-Vista.php">Asistencias</a></li>
+
         <?php elseif ($rol === 'docente'): ?>
-          <?php
-          echo '<span class="navbar-text">¡Bienvenido, <strong>' . htmlspecialchars($nombre) . '</strong>!</span>';
-          ?>
+          <!-- Docente ve solo su nombre -->
+          <li class="nav-item">
+            <span class="navbar-text">
+              ¡Bienvenido, <strong><?= htmlspecialchars($nombre) ?></strong>!
+            </span>
+          </li>
         <?php endif; ?>
+
       </ul>
-      
       <div class="d-flex">
         <a class="nav-link text-danger fw-bold" href="../Login/Login-Controlador.php?accion=logout">
           <i class="bi bi-box-arrow-right"></i> Cerrar sesión
