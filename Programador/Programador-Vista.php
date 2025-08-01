@@ -1,50 +1,52 @@
 <style>
-.modulos-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Antes 200px */
-    gap: 16px;
-    justify-content: center;
-    padding: 20px;
-}
+    .modulos-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Antes 200px */
+        gap: 16px;
+        justify-content: center;
+        padding: 20px;
+    }
 
-.materia-card, .modulo-card {
-    height: 160px; /* Antes 200px */
-    border: 1px solid #ddd;
-    border-radius: 16px;
-    background: linear-gradient(to bottom right, #ffffff, #f0f4f8);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    text-align: center;
-    padding: 16px;
-    font-size: 16px; /* Un pelín más pequeño */
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
+    .materia-card, .modulo-card {
+        height: 160px; /* Antes 200px */
+        border: 1px solid #ddd;
+        border-radius: 16px;
+        background: linear-gradient(to bottom right, #ffffff, #f0f4f8);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        padding: 16px;
+        font-size: 16px; /* Un pelín más pequeño */
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
 
-.materia-card:hover, .modulo-card:hover {
-    background: linear-gradient(to bottom right, #e8f0fe, #dbe9ff);
-    transform: scale(1.05);
-    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.3);
-}
+    .materia-card:hover, .modulo-card:hover {
+        background: linear-gradient(to bottom right, #e8f0fe, #dbe9ff);
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(0, 123, 255, 0.3);
+    }
 
-.materia-card.seleccionada, .modulo-card.seleccionada {
-    border: 2px solid #007bff;
-    background: linear-gradient(to bottom right, #d6e9ff, #c2ddff);
-    transform: scale(1.08);
-    box-shadow: 0 6px 18px rgba(0, 123, 255, 0.4);
-}
+    .materia-card.seleccionada, .modulo-card.seleccionada {
+        border: 2px solid #007bff;
+        background: linear-gradient(to bottom right, #d6e9ff, #c2ddff);
+        transform: scale(1.08);
+        box-shadow: 0 6px 18px rgba(0, 123, 255, 0.4);
+    }
 
-.icono {
-    font-size: 36px; /* Un poco más pequeño también */
-    margin-bottom: 8px;
-    color: #007bff;
-}
+    .icono {
+        font-size: 36px; /* Un poco más pequeño también */
+        margin-bottom: 8px;
+        color: #007bff;
+    }
 </style>
+
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
+
 <?php
 include_once '../Componentes/header.php';
 include '../Conexion.php';
@@ -73,8 +75,18 @@ $sql_programas = "
     WHERE m.estado = 1
 ";
 $result_programas = $conn->query($sql_programas);
-
 ?>
+
+<div class="row">
+    <div class="col-2 offset-10">
+        <div class="text-center">
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalClasePersonalizada">
+                Programar Clase Personalizada
+            </button>
+        </div>
+    </div>
+</div>
 
 <div class="container mt-5">
     <form id="formProgramador">
@@ -172,19 +184,19 @@ $result_programas = $conn->query($sql_programas);
                                 </div>
 
                                 <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                    <label for="horaEntrada">Hora de Entrada</label>
-                                    <input type="time" id="horaEntrada" name="horaEntrada" class="form-control">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="horaEntrada">Hora de Entrada</label>
+                                            <input type="time" id="horaEntrada" name="horaEntrada" class="form-control">
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                    <label for="horaSalida">Hora de Salida</label>
-                                    <input type="time" id="horaSalida" name="horaSalida" class="form-control">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="horaSalida">Hora de Salida</label>
+                                            <input type="time" id="horaSalida" name="horaSalida" class="form-control">
+                                        </div>
                                     </div>
-                                </div>
                                 </div>
 
                                 <hr>
@@ -214,18 +226,129 @@ $result_programas = $conn->query($sql_programas);
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Clases Programadas</h5>
-            <div>
-                <span id="badge-agendada" class="badge text-bg-success me-1">Agendadas: 0</span>
+            <div class="d-flex align-items-center gap-2">
+                <span id="badge-agendada" class="badge text-bg-success">Agendadas: 0</span>
                 <span id="badge-vista" class="badge text-bg-primary">Vistas: 0</span>
-                <span id="badge-perdida" class="badge text-bg-danger me-1">Perdidas: 0</span>
-                <span id="badge-reagendada" class="badge text-bg-warning me-1">Reagendadas: 0</span>
+                <span id="badge-perdida" class="badge text-bg-danger">Perdidas: 0</span>
+                <span id="badge-reagendada" class="badge text-bg-warning">Reagendadas: 0</span>
             </div>
         </div>
+
         <div class="container mt-4">
             <div id='calendar'></div>
         </div>
     </div>
 </div>
+
+<!-- Modal de Clase Personalizada -->
+<div class="modal fade" id="modalClasePersonalizada" tabindex="-1" aria-labelledby="modalClasePersonalizadaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalClasePersonalizadaLabel">Programar Clase Personalizada</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="formClasePersonalizada">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="docentePersonalizado" class="form-label">Docente</label>
+              <select class="form-select" id="docentePersonalizado" name="docente" required>
+                <option selected disabled value="">Seleccionar docente</option>
+                <?php 
+                // Reutilizamos la consulta de docentes que ya tenemos
+                $result_docentes->data_seek(0); // Reiniciamos el puntero del resultado
+                while ($row = $result_docentes->fetch_assoc()): ?>
+                  <option value="<?php echo $row['numero_documento']; ?>">
+                    <?php echo $row['nombres'] . ' ' . $row['apellidos']; ?>
+                  </option>
+                <?php endwhile; ?>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="periodoPersonalizado" class="form-label">Periodo</label>
+              <select class="form-select" id="periodoPersonalizado" name="periodo" required>
+                <option selected disabled value="">Seleccionar periodo</option>
+                <?php 
+                // Reutilizamos la consulta de periodos que ya tenemos
+                $result_periodos->data_seek(0); // Reiniciamos el puntero del resultado
+                while ($row = $result_periodos->fetch_assoc()): ?>
+                  <option value="<?php echo $row['id_periodo']; ?>">
+                    <?php echo $row['nombre']; ?>
+                  </option>
+                <?php endwhile; ?>
+              </select>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="moduloPersonalizado" class="form-label">Módulo</label>
+              <select class="form-select" id="moduloPersonalizado" name="modulo" required>
+                <option selected disabled value="">Seleccionar módulo</option>
+                <?php
+                // Consultamos todos los módulos activos (similar a lo que haces en el AJAX)
+                $sql_modulos = "SELECT id_modulo, nombre FROM modulos WHERE estado = 1";
+                $result_modulos = $conn->query($sql_modulos);
+                
+                if ($result_modulos->num_rows > 0) {
+                    while ($row = $result_modulos->fetch_assoc()) {
+                        echo '<option value="' . $row['id_modulo'] . '">' . $row['nombre'] . '</option>';
+                    }
+                }
+                ?>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="fechaPersonalizada" class="form-label">Fecha</label>
+              <input type="date" class="form-control" id="fechaPersonalizada" name="fecha" required>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label for="horaEntradaPersonalizada" class="form-label">Hora de Inicio</label>
+              <input type="time" class="form-control" id="horaEntradaPersonalizada" name="horaEntrada" required>
+            </div>
+            <div class="col-md-3">
+              <label for="horaSalidaPersonalizada" class="form-label">Hora de Fin</label>
+              <input type="time" class="form-control" id="horaSalidaPersonalizada" name="horaSalida" required>
+            </div>
+            <div class="col-md-3">
+              <label for="salonPersonalizado" class="form-label">Salón</label>
+              <select class="form-select" id="salonPersonalizado" name="salon" required>
+                <option selected disabled value="">Seleccionar salón</option>
+                <?php 
+                // Reutilizamos la consulta de salones que ya tenemos
+                $result_salones->data_seek(0); // Reiniciamos el puntero del resultado
+                while ($row = $result_salones->fetch_assoc()): ?>
+                  <option value="<?php echo $row['id_salon']; ?>">
+                    <?php echo $row['nombre_salon'] . ', ' . $row['nombre']; ?>
+                  </option>
+                <?php endwhile; ?>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="modalidadPersonalizada" class="form-label">Modalidad</label>
+              <select class="form-select" id="modalidadPersonalizada" name="modalidad" required>
+                <option selected disabled value="">Seleccionar modalidad</option>
+                <option value="presencial">Presencial</option>
+                <option value="virtual">Virtual</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="guardarClasePersonalizada()">Guardar Clase</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Reprogramación-->
 <div class="modal fade" id="modalReprogramar" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -261,6 +384,7 @@ $result_programas = $conn->query($sql_programas);
         </div>
     </div>
 </div>
+
 <!-- Modal de edición -->
 <div class="modal fade" id="modalEditarClase" tabindex="-1" aria-labelledby="modalEditarClaseLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -271,7 +395,6 @@ $result_programas = $conn->query($sql_programas);
             </div>
             <div class="modal-body">
                 <form id="editarClaseForm">
-
                     <input type="hidden" id="id_programador" name="id_programador">
 
                     <div class="mb-3">
@@ -357,97 +480,142 @@ $result_programas = $conn->query($sql_programas);
         </div>
     </div>
 </div>
+
 <br>
 
 <?php
 include_once '../Componentes/footer.php';
 ?>
+
 <script src="js/Datatable-Programador.js"></script>
+
+<script>
+function guardarClasePersonalizada() {
+    const form = document.getElementById("formClasePersonalizada");
+    const formData = new FormData(form);
+
+    if (!formData.get('docente') || !formData.get('periodo') || !formData.get('modulo') || 
+        !formData.get('fecha') || !formData.get('horaEntrada') || !formData.get('horaSalida') || 
+        !formData.get('salon') || !formData.get('modalidad')) {
+        alert("Por favor complete todos los campos");
+        return;
+    }
+
+    $.ajax({
+        url: "Programador-Controlador.php?accion=crearPersonalizada",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            try {
+                const data = JSON.parse(response);
+                if (data.status === "success") {
+                    alert(data.message);
+                    $('#modalClasePersonalizada').modal('hide');
+                    location.reload();
+                } else {
+                    alert((data.message || "Error al guardar la clase"));
+                }
+            } catch (e) {
+                console.error("Error al procesar la respuesta:", response);
+                alert("Ocurrió un error inesperado.");
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error AJAX:", error);
+            alert("Error en la conexión con el servidor");
+        }
+    });
+}
+</script>
+
 <script>
     function ProgramarClase() {
-  const form = document.getElementById("formProgramador");
-  const formData = new FormData(form);
+        const form = document.getElementById("formProgramador");
+        const formData = new FormData(form);
 
-  console.log("Datos del formulario:");
-  for (const [key, value] of formData.entries()) {
-    console.log(`${key}: ${value}`);
-  }
-
-  $.ajax({
-    url: "Programador-Controlador.php?accion=crear",
-    type: "POST",
-    data: formData,
-    processData: false,
-    contentType: false,
-    success: function (response) {
-      try {
-        // Intenta interpretar la respuesta como JSON
-        const data = JSON.parse(response);
-
-        if (data.status === "success") {
-          alert("✅ " + data.message);
-          location.reload();
-        } else if (data.status === "error") {
-          alert("❌ " + data.message);
-        } else {
-          alert("⚠️ Respuesta inesperada del servidor.");
-          console.log(data);
+        console.log("Datos del formulario:");
+        for (const [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
         }
-      } catch (e) {
-        console.error("❌ Error al procesar la respuesta:", response);
-        alert("❌ Ocurrió un error inesperado. Verifica la consola.");
-      }
-    },
-    error: function (xhr, status, error) {
-      console.error("Error AJAX:", error);
-      alert("🚫 Error en la conexión con el servidor: " + error);
-    },
-  });
-}
 
-function GuardarClase() {
-  const formData = new FormData(document.getElementById("editarClaseForm"));
+        $.ajax({
+            url: "Programador-Controlador.php?accion=crear",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                try {
+                    // Intenta interpretar la respuesta como JSON
+                    const data = JSON.parse(response);
 
-  console.log("Datos del formulario:", ...formData.entries());
+                    if (data.status === "success") {
+                        alert("✅ " + data.message);
+                        location.reload();
+                    } else if (data.status === "error") {
+                        alert("❌ " + data.message);
+                    } else {
+                        alert("⚠️ Respuesta inesperada del servidor.");
+                        console.log(data);
+                    }
+                } catch (e) {
+                    console.error("❌ Error al procesar la respuesta:", response);
+                    alert("❌ Ocurrió un error inesperado. Verifica la consola.");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error AJAX:", error);
+                alert("🚫 Error en la conexión con el servidor: " + error);
+            },
+        });
+    }
 
-  $.ajax({
-    url: "Programador-Controlador.php?accion=editar",
-    type: "POST",
-    data: formData,
-    processData: false,
-    contentType: false,
-    success: function (response) {
-      console.log("Respuesta del servidor:", response);
-      location.reload();
-    },
-    error: function (xhr, status, error) {
-      console.error("Error:", error);
-    },
-  });
-}
-function reprogramarClase() {
-  const formData = new FormData(document.getElementById("formReprogramar"));
-  console.log(...formData);
+    function GuardarClase() {
+        const formData = new FormData(document.getElementById("editarClaseForm"));
 
-  $.ajax({
-    url: "Programador-Controlador.php?accion=reprogramar",
-    type: "POST",
-    data: formData,
-    processData: false,
-    contentType: false,
-    success: function (response) {
-      console.log("Respuesta del servidor:", response);
-      alert("Respuesta del servidor:", response);
-      location.reload();
-    },
-    error: function (xhr, status, error) {
-      console.error("Error:", error);
-      alert("Hubo un problema al procesar la solicitud.");
-    },
-  });
-}
+        console.log("Datos del formulario:", ...formData.entries());
 
+        $.ajax({
+            url: "Programador-Controlador.php?accion=editar",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                console.log("Respuesta del servidor:", response);
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+            },
+        });
+    }
+
+    function reprogramarClase() {
+        const formData = new FormData(document.getElementById("formReprogramar"));
+        console.log(...formData);
+
+        $.ajax({
+            url: "Programador-Controlador.php?accion=reprogramar",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                console.log("Respuesta del servidor:", response);
+                alert("Respuesta del servidor:", response);
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+                alert("Hubo un problema al procesar la solicitud.");
+            },
+        });
+    }
 </script>
+
 <script>
     // Función que se llama cuando haces clic en un módulo
     function seleccionarModulo(id) {
@@ -508,6 +676,7 @@ function reprogramarClase() {
         });
     });
 </script>
+
 <script>
     // Función para obtener los datos del servidor
     function cargarClasesEstado() {
@@ -538,5 +707,3 @@ function reprogramarClase() {
         cargarClasesEstado();
     });
 </script>
-
-

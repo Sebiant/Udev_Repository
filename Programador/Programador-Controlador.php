@@ -4,6 +4,87 @@ include '../Conexion.php';
 $accion = $_GET['accion'] ?? 'default';
 
 switch ($accion) {
+    case 'crearPersonalizada':
+        $camposRequeridos = [
+            'fecha', 'horaEntrada', 'horaSalida', 'salon', 
+            'docente', 'periodo', 'modulo', 'modalidad'
+        ];
+        
+        $camposFaltantes = [];
+        foreach ($camposRequeridos as $campo) {
+            if (empty($_POST[$campo])) {
+                $camposFaltantes[] = $campo;
+            }
+        }
+        
+        if (!empty($camposFaltantes)) {
+            die(json_encode([
+                "status" => "error",
+                "message" => "Faltan datos obligatorios: " . implode(', ', $camposFaltantes)
+            ]));                
+        }
+
+        // Asignación de variables
+        $fecha = $_POST['fecha'];
+        $hora_inicio = $_POST['horaEntrada'];
+        $hora_salida = $_POST['horaSalida'];
+        $salon = $_POST['salon'];
+        $docente = $_POST['docente'];
+        $periodo = $_POST['periodo'];
+        $modulo = $_POST['modulo'];
+        $modalidad = $_POST['modalidad'];
+        $estado = 'Pendiente';
+
+        // Validaciones básicas
+        if (!validarHorasEntradaSalida($hora_inicio, $hora_salida)) {
+            die(json_encode(['status' => 'error', 'message' => 'La hora de salida debe ser después de la hora de entrada.']));
+        }
+
+        if (!horarioLaboralValido($hora_inicio, $hora_salida)) {
+            die(json_encode(['status' => 'error', 'message' => 'El horario debe estar entre 7:00 AM y 10:00 PM.']));
+        }
+
+        if (!docentePuedeDictarModulo($conn, $docente, $modulo)) {
+            die(json_encode(['status' => 'error', 'message' => 'El docente no está habilitado para dictar este módulo.']));
+        }
+
+        // Validación de disponibilidad
+        if (!docenteDisponible($docente, $fecha, $hora_inicio, $hora_salida, $conn)) {
+            die(json_encode(['status' => 'error', 'message' => "El docente no está disponible en ese horario"]));
+        }
+
+        if (!salonDisponible($salon, $fecha, $hora_inicio, $hora_salida, $conn)) {
+            die(json_encode(['status' => 'error', 'message' => "El salón no está disponible en ese horario"]));
+        }
+
+        // Insertar la clase
+        $sql = "INSERT INTO programador 
+                (fecha, hora_inicio, hora_salida, id_salon, numero_documento, id_modulo, id_periodo, estado, modalidad) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            die(json_encode(['status' => 'error', 'message' => 'Error en la preparación de la consulta: ' . $conn->error]));
+        }
+
+        $stmt->bind_param('sssiiiiss', $fecha, $hora_inicio, $hora_salida, $salon, $docente, $modulo, $periodo, $estado, $modalidad);
+
+        if ($stmt->execute()) {
+            echo json_encode([
+                'status' => 'success', 
+                'message' => 'Clase programada correctamente para ' . $fecha,
+                'id' => $stmt->insert_id
+            ]);
+        } else {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Error al programar la clase: ' . $stmt->error
+            ]);
+        }
+
+        $stmt->close();
+        break;
+
     case 'crear':
         if (
             empty($_POST['dia']) ||
@@ -30,7 +111,7 @@ switch ($accion) {
             $modalidad = $_POST['modalidad'];
             $estado = 'Pendiente';
         }        
-    
+        
         // Validación 1: Hora de salida debe ser posterior a la de entrada
         if (!validarHorasEntradaSalida($hora_inicio, $hora_salida)) {
             die(json_encode(['status' => 'error', 'message' => 'La hora de salida debe ser al menos una hora después de la hora de entrada.']));
@@ -79,7 +160,7 @@ switch ($accion) {
         while ($fecha_inicio <= $fecha_fin) {
             $fecha_str = $fecha_inicio->format("Y-m-d");
 
-                $contador++; 
+            $contador++; 
     
             // Validación 4: Docente disponible
             if (!docenteDisponible($docente, $fecha_str, $hora_inicio, $hora_salida, $conn)) {
@@ -159,6 +240,7 @@ switch ($accion) {
             ]);
         }
         break;  
+
     case 'buscarClasesProgramadasPorPeriodo':
         $data = json_decode(file_get_contents("php://input"), true);
         $periodo = $data['id_periodo'] ?? null;
@@ -193,7 +275,6 @@ switch ($accion) {
                     exit;
                 }
 
-
                 $eventos = [];
                 while ($row = $result->fetch_assoc()) {
                     $eventos[] = [
@@ -221,7 +302,7 @@ switch ($accion) {
                 'message' => 'ID del periodo no proporcionado.'
             ]);
         }
-    break;
+        break;
 
     case 'reprogramar':        
         // Recibir datos del formulario
@@ -361,35 +442,35 @@ switch ($accion) {
         $stmt->close();
         break;
 
-        case 'contarClasesEstado':
-            $sql = "SELECT 
-                    SUM(estado = 'Pendiente') AS pendiente,
-                    SUM(estado = 'Reprogramada') AS reprogramada,
-                    SUM(estado = 'Perdida') AS perdida,
-                    SUM(estado = 'Vista') AS vista
-                FROM programador";
+    case 'contarClasesEstado':
+        $sql = "SELECT 
+                SUM(estado = 'Pendiente') AS pendiente,
+                SUM(estado = 'Reprogramada') AS reprogramada,
+                SUM(estado = 'Perdida') AS perdida,
+                SUM(estado = 'Vista') AS vista
+            FROM programador";
+    
+        $result = $conn->query($sql);
         
-            $result = $conn->query($sql);
-            
-            if ($result) {
-                $data = $result->fetch_assoc();
-                foreach ($data as $key => $value) {
-                    if (is_null($value)) {
-                        $data[$key] = 0;
-                    }
+        if ($result) {
+            $data = $result->fetch_assoc();
+            foreach ($data as $key => $value) {
+                if (is_null($value)) {
+                    $data[$key] = 0;
                 }
-                echo json_encode([
-                    "pendiente" => $data['pendiente'],
-                    "reprogramada" => $data['reprogramada'],
-                    "perdida" => $data['perdida'],
-                    "vista" => $data['vista']  // Añadido el estado "Vista"
-                ]);
-            } else {
-                echo json_encode([
-                    "error" => "Error al contar clases"
-                ]);
             }
-            break;
+            echo json_encode([
+                "pendiente" => $data['pendiente'],
+                "reprogramada" => $data['reprogramada'],
+                "perdida" => $data['perdida'],
+                "vista" => $data['vista']
+            ]);
+        } else {
+            echo json_encode([
+                "error" => "Error al contar clases"
+            ]);
+        }
+        break;
 
     default:
         $conn->query("SET lc_time_names = 'es_ES'");
@@ -412,7 +493,6 @@ switch ($accion) {
         $eventos = [];
 
         while ($row = $result->fetch_assoc()) {
-            // Asegúrate de que p.fecha esté en formato YYYY-MM-DD
             $start = $row['fecha'] . "T" . $row['hora_inicio'];
             $end = $row['fecha'] . "T" . $row['hora_salida'];
             
@@ -427,7 +507,6 @@ switch ($accion) {
 
         header('Content-Type: application/json');
         echo json_encode($eventos);
-                
         break;
 }
 
@@ -439,8 +518,8 @@ function docenteDisponible($docente_id, $fecha, $hora_inicio, $hora_fin, $conn, 
             WHERE numero_documento = ? 
             AND fecha = ? 
             AND (
-                (? < hora_salida AND ? > hora_inicio) OR  -- Solapamiento parcial
-                (hora_inicio = ? AND hora_salida = ?)     -- Mismo horario exacto
+                (? < hora_salida AND ? > hora_inicio) OR
+                (hora_inicio = ? AND hora_salida = ?)
             )";
     
     if ($excluir_id) {
@@ -455,7 +534,7 @@ function docenteDisponible($docente_id, $fecha, $hora_inicio, $hora_fin, $conn, 
     $stmt->execute();
     $stmt->store_result();
 
-    return ($stmt->num_rows === 0); // True si está disponible
+    return ($stmt->num_rows === 0);
 }
 
 function salonDisponible($salon_id, $fecha, $hora_inicio, $hora_fin, $conn, $excluir_id = null) {
@@ -480,7 +559,7 @@ function salonDisponible($salon_id, $fecha, $hora_inicio, $hora_fin, $conn, $exc
     $stmt->execute();
     $stmt->store_result();
 
-    return ($stmt->num_rows === 0); // True si está disponible
+    return ($stmt->num_rows === 0);
 }
 
 function horarioLaboralValido($hora_inicio, $hora_fin) {
@@ -511,4 +590,4 @@ function docentePuedeDictarModulo($conn, $docente, $modulo) {
 
     return $row['total'] > 0;
 }
-?>  
+?>
